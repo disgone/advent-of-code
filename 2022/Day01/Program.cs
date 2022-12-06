@@ -1,5 +1,7 @@
-﻿long currentElf = 0L;
-long maxCalories = 0L;
+﻿var elfCalories = new List<long>();
+
+long currentElf = 0L;
+
 await foreach (string line in File.ReadLinesAsync("input.txt"))
 {
     if (long.TryParse(line, out long calories))
@@ -8,13 +10,11 @@ await foreach (string line in File.ReadLinesAsync("input.txt"))
     }
     else
     {
-        if (currentElf > maxCalories)
-        {
-            maxCalories = currentElf;
-        }
-
+        elfCalories.Add(currentElf);
         currentElf = 0;
     }
 }
 
-Console.WriteLine($"Max calories held is {maxCalories}");
+var totalCalories = elfCalories.OrderDescending().Take(3).Sum(n => n);
+
+Console.WriteLine($"The top 3 elves are carrying {totalCalories} calories");
