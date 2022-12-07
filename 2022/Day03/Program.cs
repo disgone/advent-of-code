@@ -1,15 +1,21 @@
 ﻿int totalPriority = 0;
 
+static int GetPriorityScore(char c) => c - (char.IsBetween(c, 'a', 'z') ? 96 : 38);
+
+var group = new List<char[]>();
 foreach (string line in File.ReadLines("input.txt"))
 {
-    var span = line.AsSpan();
-    var midPoint = span.Length / 2;
+    if (group.Count < 3)
+    {
+        group.Add(line.ToCharArray());
+    }
 
-    var a  = span.Slice(0, midPoint);
-    var b = span.Slice(midPoint);
-
-    var dupe = a.ToArray().Intersect(b.ToArray()).First();
-    totalPriority += dupe - (char.IsBetween(dupe, 'a', 'z') ? 96 : 38);
+    if (group.Count == 3)
+    {
+        var badgeId = group[0].Intersect(group[1].Intersect(group[2])).Single();
+        totalPriority += GetPriorityScore(badgeId);
+        group.Clear();
+    }
 }
 
 Console.WriteLine("Total priority " + totalPriority);
