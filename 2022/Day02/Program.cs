@@ -1,21 +1,33 @@
-﻿// [MyMove, TheirMove]
-RoundResult[,] resultMatrix = {
-    { RoundResult.Draw, RoundResult.Lose, RoundResult.Win },
-    { RoundResult.Win, RoundResult.Draw, RoundResult.Lose },
-    { RoundResult.Lose, RoundResult.Win, RoundResult.Draw }
-};
-
+﻿
 static Throw DecodeMove(char moveCode) => moveCode switch
 {
-    'A' or 'X' => Throw.Rock,
-    'B' or 'Y' => Throw.Paper,
-    'C' or 'Z' => Throw.Scissor,
+    'A' => Throw.Rock,
+    'B' => Throw.Paper,
+    'C' => Throw.Scissor,
     _ => throw new ArgumentOutOfRangeException(nameof(moveCode), moveCode, null)
 };
 
-RoundResult JudgeResult(Throw theirMove, Throw myMove)
+static RoundResult DecodeResult(char resultCode) => resultCode switch
 {
-    return resultMatrix[(int)myMove, (int)theirMove];
+    'X' => RoundResult.Lose,
+    'Y' => RoundResult.Draw,
+    'Z' => RoundResult.Win,
+    _ => throw new ArgumentOutOfRangeException(nameof(resultCode), resultCode, null)
+};
+
+Throw CounterForResult(Throw move, RoundResult result)
+{
+    if (result == RoundResult.Draw) return move;
+
+    return (move, result) switch
+    {
+        (Throw.Paper, RoundResult.Win) => Throw.Scissor,
+        (Throw.Rock, RoundResult.Win) => Throw.Paper,
+        (Throw.Scissor, RoundResult.Win) => Throw.Rock,
+        (Throw.Paper, RoundResult.Lose) => Throw.Rock,
+        (Throw.Rock, RoundResult.Lose) => Throw.Scissor,
+        (Throw.Scissor, RoundResult.Lose) => Throw.Paper
+    };
 }
 
 int totalScore = 0;
@@ -23,14 +35,14 @@ await foreach (string line in File.ReadLinesAsync("input.txt"))
 {
     if (line.Length < 3) continue;
     var theirMove = DecodeMove(line[0]);
-    var myMove = DecodeMove(line[2]);
+    var expectedResult = DecodeResult(line[2]);
 
-    Console.WriteLine($"{theirMove} vs {myMove}: {JudgeResult(theirMove, myMove)}");
+    var counter = CounterForResult(theirMove, expectedResult);
 
-    totalScore += ((int)myMove+1 + (int)JudgeResult(theirMove, myMove));
+    totalScore += ((int)expectedResult) + ((int)counter + 1);
 }
 
-Console.WriteLine(totalScore);
+Console.WriteLine(totalScore + " total");
 
 public enum Throw
 {
