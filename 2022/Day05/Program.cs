@@ -77,9 +77,15 @@ while (movesLineIndex < lines.Length)
 
 while (moves.TryDequeue(out (int count, int from, int to) move))
 {
+    Stack<char> pile = new(move.count);
     for (int i = move.count; i > 0; i--)
     {
-        crateStacks[move.to].Push(crateStacks[move.from].Pop());
+        pile.Push(crateStacks[move.from].Pop());
+    }
+
+    while (pile.TryPop(out char crate))
+    {
+        crateStacks[move.to].Push(crate);
     }
 }
 
