@@ -25,6 +25,6 @@ int GetMarkerPosition(ReadOnlySpan<char> text, int length)
     throw new InvalidOperationException("Could not find unique marker");
 }
 
-int markerPosition = GetMarkerPosition(dataStream.AsSpan(), 4);
+int markerPosition = GetMarkerPosition(dataStream.AsSpan(), 14);
 
 Console.WriteLine($"first marker after character {markerPosition}");
