@@ -57,7 +57,34 @@ long GetFilterdSize(ElfDirectory node, long maxSize)
     return totalSize;
 }
 
-Console.WriteLine($"Total size: {GetFilterdSize(root,  100_000)}");
+long totalDiskSize = 70_000_000;
+long updateSize = 30_000_000;
+
+long unusedSpace = totalDiskSize - root.Size;
+long neededSpace = updateSize - unusedSpace;
+Console.WriteLine($"Current free space: {unusedSpace:N0} of {totalDiskSize:N0}\nNeeded: {neededSpace:N0}");
+
+ElfDirectory? currentTarget = null;
+void FindDeletionTarget(ElfDirectory node)
+{
+    long dirSize = node.Size;
+    if (dirSize > neededSpace && (currentTarget == null || currentTarget.Size > dirSize))
+    {
+        currentTarget = node;
+    }
+
+    if (node.Directories.Count > 0)
+    {
+        foreach (var dir in node.Directories)
+        {
+            FindDeletionTarget(dir.Value);
+        }
+    }
+}
+
+FindDeletionTarget(root);
+Console.WriteLine($"Closest target is: {currentTarget.Name} at {currentTarget.Size}");
+
 
 record ElfDirectory(string Name, ElfDirectory? Parent = null)
 {
