@@ -65,6 +65,67 @@ for (int y = 0; y <= grid.GetUpperBound(1); y++)
 }
 Console.WriteLine($"{totalVisible} trees are visible");
 
+int bestScore = 0;
+for (int x = 0; x < rows; x++)
+{
+    for (int y = 0; y < columns; y++)
+    {
+        if (x == 0 || x == rows - 1 || y == 0 || y == columns - 1)
+        {
+            continue;
+        }
+
+        var currentTree = grid[y,x];
+        var scenicScore = 1;
+        int cx, cy;
+
+        for (cx = x - 1; cx > 0; --cx)
+        {
+            if (grid[y,cx].Height >= currentTree.Height)
+            {
+                break;
+            }
+        }
+        scenicScore *= x - cx;
+
+        for (cy = y - 1; cy > 0; --cy)
+        {
+            if (grid[cy,x].Height >= currentTree.Height)
+            {
+                break;
+            }
+        }
+        scenicScore *= y - cy;
+
+        for (cx = x + 1; cx < data.Length - 1; ++cx)
+        {
+            if (grid[y,cx].Height >= currentTree.Height)
+            {
+                break;
+            }
+        }
+        scenicScore *= cx - x;
+
+        for (cy = y + 1; cy < data[0].Length - 1; ++cy)
+        {
+            if (grid[cy,x].Height >= currentTree.Height)
+            {
+                break;
+            }
+        }
+        scenicScore *= cy - y;
+
+        if (scenicScore > bestScore)
+        {
+            bestScore = scenicScore;
+        }
+    }
+}
+
+Console.WriteLine($"The best scenic score is {bestScore}");
+
+
+
 record Tree(int Height, bool IsVisible = false)
 {
     public bool IsVisible { get; set; } = IsVisible;
