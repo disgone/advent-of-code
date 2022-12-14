@@ -2,21 +2,47 @@
             let parts = line.Split(' ')
             select new Move(parts[0], int.Parse(parts[1]));
 
-var start = new Knot();
-var end = new Knot();
-
+var rope = new Rope(10);
 foreach (var move in moves)
 {
-    for (int i = 1; i <= move.Distance; i++)
-    {
-        start.Move(move.Direction);
-        end.Follow(start);
-    }
+    rope.Move(move);
 }
 
-Console.WriteLine($"The tail visited {end.Locations.Count()} unique locations");
+Console.WriteLine($"The tail visited {rope.Knots.Last().Locations.Count()} unique locations");
 
 public record Move(string Direction, int Distance);
+
+public class Rope
+{
+    public Rope(int knots)
+    {
+        Knots = new Knot[knots];
+        for (int i = 0; i < knots; i++)
+        {
+            Knots[i] = new();
+        }
+    }
+    
+    public Knot[] Knots { get; }
+
+    public void Move(Move move)
+    {
+        for (int i = 1; i <= move.Distance; i++)
+        {
+            for (int n = 0; n < Knots.Length; n++)
+            {
+                if (n == 0)
+                {
+                    Knots[n].Move(move.Direction);
+                }
+                else
+                {
+                    Knots[n].Follow(Knots[n-1]);
+                }
+            }
+        }
+    }
+}
 
 public class Knot
 {
