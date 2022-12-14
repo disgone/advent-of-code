@@ -4,9 +4,12 @@ foreach (var line in File.ReadAllLines("input.txt"))
     instructions.Enqueue(line);
 }
 
+bool[,] screen = new bool[6, 40];
+
 long registerValue = 1;
 long cycle = 1;
-List<long> checkPoints = new();
+int row = 0;
+int pixel = 0;
 while (instructions.TryDequeue(out string current))
 {
     int burn = 1;
@@ -14,21 +17,51 @@ while (instructions.TryDequeue(out string current))
     if (current != "noop")
     {
         burn = 2;
-        
         delta = int.Parse(current.Split(' ')[1]);
     }
 
     for (int i = 1; i <= burn; i++)
     {
-        if (cycle == 20 || (cycle - 20) % 40 == 0)
+        long leftBound = registerValue - 1;
+        long rightBound = registerValue + 1;
+
+        if (pixel >= leftBound && pixel <= rightBound)
         {
-            checkPoints.Add(registerValue * cycle);
+            screen[row, pixel] = true;
         }
+        else
+        {
+            screen[row, pixel] = false;
+        }
+        
+        pixel++;
+
+        if (cycle % 40 == 0)
+        {
+            row++;
+            pixel = 0;
+        }
+
         cycle++;
     }
 
     registerValue += delta;
 }
 
-Console.WriteLine(String.Join(',', checkPoints));
-Console.WriteLine(checkPoints.Sum());
+for (int r = 0; r <= screen.GetUpperBound(0); r++)
+{
+    for (int c = 0; c <= screen.GetUpperBound(1); c++)
+    {
+        if (screen[r, c])
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write('#');
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.Write('.');
+        }
+    }
+    Console.Write(Environment.NewLine);
+}
